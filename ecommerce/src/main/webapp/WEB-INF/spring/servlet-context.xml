@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc.xsd
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+
+		
+		<!-- Enables the Spring MVC @Controller programming model -->
+		<annotation-driven></annotation-driven>
+		
+		<context:component-scan base-package="com.virtusa.poc.ecommerce*"/>
+    	<context:property-placeholder location="classpath:application.properties"/>
+		
+		<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+		<resources mapping="/webjars/**" location="/webjars/">
+			<resource-chain resource-cache="false" />
+		</resources>
+		<resources mapping="/static/**" location="/static/" />
+
+				
+		<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+		<!--  
+		<beans:bean
+			class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			<beans:property name="prefix" value="/WEB-INF/jsp/" />
+			<beans:property name="suffix" value=".jsp" />
+		</beans:bean>
+		-->
+		<!-- https://www.devglan.com/spring-boot/spring-boot-mvc-apache-tiles-example -->
+		<beans:bean id="viewResolver" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver"/>  
+		<beans:bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">  
+			<beans:property name="definitions">  
+				<beans:list>  
+				<beans:value>/WEB-INF/tiles.xml</beans:value>  
+				</beans:list>  
+			</beans:property>  
+		</beans:bean>  
+		
+		
+		<!-- <beans"bean id="dataSource" class="org.apache.tomcat.dbcp.dbcp.BasicDataSource"> -->
+		<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+			<beans:property name="driverClassName" value="com.mysql.jdbc.Driver" />
+			<beans:property name="url" value="jdbc:mysql://localhost:3306/ecommercedb" />
+			<beans:property name="username" value="root" />
+			<beans:property name="password" value="root" />
+		</beans:bean>
+
+		<!-- Hibernate 5 SessionFactory Bean definition -->
+		<beans:bean id="hibernate5AnnotatedSessionFactory"
+			class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+			<beans:property name="dataSource" ref="dataSource" />
+			<beans:property name="annotatedClasses">
+				<beans:list>
+					<beans:value>com.virtusa.poc.ecommerce.persistence.model.Todo</beans:value>
+				</beans:list>
+			</beans:property>
+			<beans:property name="hibernateProperties">
+				<beans:props>
+					<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</beans:prop>
+					<beans:prop key="hibernate.show_sql">true</beans:prop>
+					<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
+				</beans:props>
+			</beans:property>
+		</beans:bean>
+		
+		<beans:bean id="todoDao" class="com.virtusa.poc.ecommerce.persistence.dao.TodoDaoImpl">
+			<beans:property name="sessionFactory" ref="hibernate5AnnotatedSessionFactory" />
+		</beans:bean>
+		
+		<beans:bean id="todoService" class="com.virtusa.poc.ecommerce.service.TodoServiceImpl">
+			<beans:property name="todoDao" ref="todoDao"></beans:property>
+		</beans:bean>
+		
+		
+		<tx:annotation-driven transaction-manager="transactionManager"/>
+		
+		<beans:bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+			<beans:property name="sessionFactory" ref="hibernate5AnnotatedSessionFactory" />
+		</beans:bean>
+			
+		
+		
+</beans:beans>
