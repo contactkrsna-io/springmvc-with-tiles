@@ -18,7 +18,7 @@
  	<jstl.version>1.2</jstl.version>
 	<servletapi.version>3.1.0</servletapi.version>
 
-	<spring.version>5.1.9.RELEASE</spring.version>
+	<spring.version>5.2.20.RELEASE</spring.version>
 	<thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
 	
 	<logback.version>1.2.3</logback.version>
